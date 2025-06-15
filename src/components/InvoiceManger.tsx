@@ -1,14 +1,35 @@
-// app/invoice/page.tsx or a component
 'use client';
 
 import React from 'react';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import InvoicePDF from '@/components/InvoicePDF';
 
-export default function InvoiceManager({invoiceData}) {
-    console.log(invoiceData)
+type InvoiceItem = {
+  description: string;
+  unitPrice: number;
+  netWeight: number;
+  totalAmount: number;
+};
+
+type InvoiceData = {
+  companyName: string;
+  invoiceNumber: string;
+  invoiceDate: string;
+  customerName: string;
+  TRN: string;
+  customerAddress: string;
+  items: InvoiceItem[];
+  paidAmount?: number;
+};
+
+interface InvoiceManagerProps {
+  invoiceData: InvoiceData;
+}
+
+export default function InvoiceManager({ invoiceData }: InvoiceManagerProps) {
+  console.log(invoiceData);
   return (
-    <div className='invoice-container  mx-auto  text-black text-sm font-sans h-[842px] relative'>
+    <div className="invoice-container mx-auto text-black text-sm font-sans h-[842px] relative">
       {/* Live PDF Preview */}
       <PDFViewer width="100%" height="100%">
         <InvoicePDF data={invoiceData} />

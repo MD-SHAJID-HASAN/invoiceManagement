@@ -1,7 +1,7 @@
 "use client";
-
 import React, { useState, ChangeEvent } from "react";
 import InvoiceManager from "./InvoiceManger";
+import { InvoiceData } from '@/types';
 
 type InvoiceItem = {
   description: string;
@@ -10,16 +10,16 @@ type InvoiceItem = {
   totalAmount: number;
 };
 
-type InvoiceData = {
-  companyName: string;
-  invoiceNumber: string;
-  invoiceDate: string;
-  customerName: string;
-  TRN: string;
-  customerAddress: string;
-  items: InvoiceItem[];
-  paidAmount?: number;
-};
+// type InvoiceData = {
+//   companyName: string;
+//   invoiceNumber: string;
+//   invoiceDate: string;
+//   customerName: string;
+//   TRN: string;
+//   customerAddress: string;
+//   items: InvoiceItem[];
+//   paidAmount?: number | "";
+// };
 
 export default function CreateInvoice() {
   const [invoiceData, setInvoiceData] = useState<InvoiceData>({
@@ -32,21 +32,27 @@ export default function CreateInvoice() {
     items: [
       {
         description: "",
-        unitPrice: undefined,
-        netWeight: undefined,
+        unitPrice: 0,
+        netWeight: 0,
         totalAmount: 0,
       },
     ],
-    paidAmount: undefined,
+    paidAmount: "",
   });
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
+
     setInvoiceData((prev) => ({
       ...prev,
-      [name]: type === "number" ? parseFloat(value) || 0 : value,
+      [name]:
+        type === "number"
+          ? value === ""
+            ? ""
+            : parseFloat(value)
+          : value,
     }));
   };
 
@@ -56,13 +62,18 @@ export default function CreateInvoice() {
     value: string
   ) => {
     const updatedItems = [...invoiceData.items];
+
+    // parse floats only for unitPrice and netWeight; description stays string
     const parsedValue =
       field === "unitPrice" || field === "netWeight"
-        ? parseFloat(value) || 0
+        ? value === ""
+          ? 0
+          : parseFloat(value)
         : value;
 
     const updatedItem = { ...updatedItems[index] };
-    updatedItem[field] =
+
+    (updatedItem as any )[field]=
       field === "unitPrice" || field === "netWeight"
         ? (parsedValue as number)
         : (parsedValue as string);
@@ -99,7 +110,7 @@ export default function CreateInvoice() {
   );
 
   return (
-    <div className="w-full mx-auto p-6 bg-white-500">
+    <div className="w-full mx-auto p-6 bg-white">
       <h1 className="text-2xl font-bold mb-6">Create Invoice</h1>
 
       <div className="flex flex-col lg:flex-row justify-around items-start gap-8">
@@ -114,7 +125,10 @@ export default function CreateInvoice() {
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
             >
-              <option value="company1">Sumon Hanif Scrap and Metal Waste Trading L.L.C</option>
+              <option value="">Select a company</option>
+              <option value="company1">
+                Sumon Hanif Scrap and Metal Waste Trading L.L.C
+              </option>
               <option value="company2">AL Setou Metal Scrap TR.</option>
             </select>
           </div>
@@ -208,6 +222,8 @@ export default function CreateInvoice() {
                           handleItemChange(index, "unitPrice", e.target.value)
                         }
                         className="w-full p-1 border border-gray-300 rounded"
+                        min={0}
+                        step="any"
                       />
                     </td>
                     <td className="p-2 border">
@@ -218,6 +234,8 @@ export default function CreateInvoice() {
                           handleItemChange(index, "netWeight", e.target.value)
                         }
                         className="w-full p-1 border border-gray-300 rounded"
+                        min={0}
+                        step="any"
                       />
                     </td>
                     <td className="p-2 border text-right">
@@ -248,9 +266,11 @@ export default function CreateInvoice() {
             <input
               type="number"
               name="paidAmount"
-              value={invoiceData.paidAmount}
+              value={invoiceData.paidAmount === undefined ? "" : invoiceData.paidAmount}
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              min={0}
+              step="any"
             />
           </div>
         </form>
