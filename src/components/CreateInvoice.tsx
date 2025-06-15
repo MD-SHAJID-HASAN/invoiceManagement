@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, ChangeEvent } from "react";
-import InvoicePage from "../invoice/page";
 import InvoiceManager from "./InvoiceManger";
 
 type InvoiceItem = {
